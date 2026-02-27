@@ -55,7 +55,7 @@
 			{
 				"vendor": "oaicopilot",
 				"displayName": "OAI Compatible",
-				"managementCommand": "oaicopilot.setApikey"
+				"managementCommand": "oaicopilot.openConfig"
 			}
 		],
 		"commands": [
