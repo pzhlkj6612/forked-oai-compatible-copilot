@@ -50,6 +50,7 @@ export async function prepareLanguageModelChatInformation(
 					version: "1.0.0",
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
+					category: { label: m.owned_by || "OAI Compatible", order: 0 },
 					capabilities: {
 						toolCalling: true,
 						imageInput: m?.vision ?? false,
@@ -95,6 +96,7 @@ export async function prepareLanguageModelChatInformation(
 					version: "1.0.0",
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
+					category: { label: p.provider || "OAI Compatible", order: 0 },
 					capabilities: {
 						toolCalling: true,
 						imageInput: vision,
@@ -115,6 +117,7 @@ export async function prepareLanguageModelChatInformation(
 					version: "1.0.0",
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
+					category: { label: "OAI Compatible", order: 0 },
 					capabilities: {
 						toolCalling: true,
 						imageInput: true,
