@@ -28,7 +28,7 @@ import type { GeminiGenerateContentRequest } from "./gemini/geminiTypes";
 import { CommonApi } from "./commonApi";
 
 /**
- * VS Code Chat provider backed by Hugging Face Inference Providers.
+ * VS Code Chat provider backed by OAI Compatible Inference Providers.
  */
 export class HuggingFaceChatModelProvider implements LanguageModelChatProvider {
 	/** Track last request completion time for delay calculation. */
@@ -58,7 +58,7 @@ export class HuggingFaceChatModelProvider implements LanguageModelChatProvider {
 		options: { silent: boolean },
 		_token: CancellationToken
 	): Promise<LanguageModelChatInformation[]> {
-		return prepareLanguageModelChatInformation({ silent: options.silent ?? false }, _token, this.secrets);
+		return prepareLanguageModelChatInformation({ silent: options.silent ?? false }, _token);
 	}
 
 	/**
@@ -156,14 +156,13 @@ export class HuggingFaceChatModelProvider implements LanguageModelChatProvider {
 
 			// Get API key for the model's provider
 			const provider = um?.owned_by;
-			const useGenericKey = !um?.baseUrl;
-			const modelApiKey = await this.ensureApiKey(useGenericKey, provider);
+			const modelApiKey = await this.ensureApiKey(provider);
 			if (!modelApiKey) {
 				throw new Error("OAI Compatible API key not found");
 			}
 
 			// send chat request
-			const BASE_URL = um?.baseUrl || config.get<string>("oaicopilot.baseUrl", "");
+			const BASE_URL = um?.baseUrl;
 			if (!BASE_URL || !BASE_URL.startsWith("http")) {
 				throw new Error(`Invalid base URL configuration.`);
 			}
@@ -476,19 +475,17 @@ export class HuggingFaceChatModelProvider implements LanguageModelChatProvider {
 	}
 
 	/**
-	 * Ensure an API key exists in SecretStorage, optionally prompting the user when not silent.
-	 * @param useGenericKey If true, use generic API key.
+	 * Ensure an API key exists in SecretStorage, optionally prompting the user when not found.
 	 * @param provider Optional provider name to get provider-specific API key.
 	 */
-	private async ensureApiKey(useGenericKey: boolean, provider?: string): Promise<string | undefined> {
-		// Try to get provider-specific API key first
+	private async ensureApiKey(provider?: string): Promise<string | undefined> {
 		let apiKey: string | undefined;
 		if (provider && provider.trim() !== "") {
 			const normalizedProvider = provider.trim().toLowerCase();
 			const providerKey = `oaicopilot.apiKey.${normalizedProvider}`;
 			apiKey = await this.secrets.get(providerKey);
 
-			if (!apiKey && !useGenericKey) {
+			if (!apiKey) {
 				const entered = await vscode.window.showInputBox({
 					title: `OAI Compatible API Key for ${normalizedProvider}`,
 					prompt: `Enter your OAI Compatible API key for ${normalizedProvider}`,
@@ -502,23 +499,6 @@ export class HuggingFaceChatModelProvider implements LanguageModelChatProvider {
 			}
 		}
 
-		// Fall back to generic API key
-		if (!apiKey) {
-			apiKey = await this.secrets.get("oaicopilot.apiKey");
-		}
-
-		if (!apiKey && useGenericKey) {
-			const entered = await vscode.window.showInputBox({
-				title: "OAI Compatible API Key",
-				prompt: "Enter your OAI Compatible API key",
-				ignoreFocusOut: true,
-				password: true,
-			});
-			if (entered && entered.trim()) {
-				apiKey = entered.trim();
-				await this.secrets.store("oaicopilot.apiKey", apiKey);
-			}
-		}
 		return apiKey;
 	}
 }

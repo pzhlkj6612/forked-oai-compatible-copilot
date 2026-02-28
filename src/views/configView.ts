@@ -5,8 +5,6 @@ import { fetchModels } from "../provideModel";
 import { VersionManager } from "../versionManager";
 
 interface InitPayload {
-	baseUrl: string;
-	apiKey: string;
 	delay: number;
 	readFileLines: number;
 	retry: {
@@ -24,8 +22,6 @@ interface InitPayload {
 interface ExportConfig {
 	version: string;
 	exportDate: string;
-	baseUrl: string;
-	apiKey: string;
 	delay: number;
 	retry: {
 		enabled?: boolean;
@@ -44,8 +40,6 @@ type IncomingMessage =
 	| { type: "requestInit" }
 	| {
 			type: "saveGlobalConfig";
-			baseUrl: string;
-			apiKey: string;
 			delay: number;
 			readFileLines: number;
 			retry: { enabled?: boolean; max_attempts?: number; interval_ms?: number; status_codes?: number[] };
@@ -170,8 +164,6 @@ export class ConfigViewPanel {
 				break;
 			case "saveGlobalConfig":
 				await this.saveGlobalConfig(
-					message.baseUrl,
-					message.apiKey,
 					message.delay,
 					message.readFileLines,
 					message.retry,
@@ -244,10 +236,8 @@ export class ConfigViewPanel {
 
 	private async sendInit() {
 		const config = vscode.workspace.getConfiguration();
-		const baseUrl = config.get<string>("oaicopilot.baseUrl", "https://api.openai.com/v1");
 		const models = normalizeUserModels(config.get<unknown>("oaicopilot.models", []));
 
-		const apiKey = (await this.secrets.get("oaicopilot.apiKey")) ?? "";
 		const providerKeys: Record<string, string> = {};
 		const providers = Array.from(new Set(models.map((m) => m.owned_by).filter(Boolean)));
 		for (const provider of providers) {
@@ -284,8 +274,6 @@ export class ConfigViewPanel {
 		const commitLanguage = config.get<string>("oaicopilot.commitLanguage", "English");
 		const readFileLines = config.get<number>("oaicopilot.readFileLines", 0);
 		const payload: InitPayload = {
-			baseUrl,
-			apiKey,
 			delay,
 			readFileLines,
 			retry,
@@ -298,27 +286,17 @@ export class ConfigViewPanel {
 	}
 
 	private async saveGlobalConfig(
-		rawBaseUrl: string,
-		rawApiKey: string,
 		delay: number,
 		readFileLines: number,
 		retry: { enabled?: boolean; max_attempts?: number; interval_ms?: number; status_codes?: number[] },
 		commitModel: string,
 		commitLanguage: string
 	) {
-		const baseUrl = rawBaseUrl.trim();
-		const apiKey = rawApiKey.trim();
 		const config = vscode.workspace.getConfiguration();
-		await config.update("oaicopilot.baseUrl", baseUrl, vscode.ConfigurationTarget.Global);
 		await config.update("oaicopilot.delay", delay, vscode.ConfigurationTarget.Global);
 		await config.update("oaicopilot.readFileLines", readFileLines, vscode.ConfigurationTarget.Global);
 		await config.update("oaicopilot.retry", retry, vscode.ConfigurationTarget.Global);
 		await config.update("oaicopilot.commitLanguage", commitLanguage, vscode.ConfigurationTarget.Global);
-		if (apiKey) {
-			await this.secrets.store("oaicopilot.apiKey", apiKey);
-		} else {
-			await this.secrets.delete("oaicopilot.apiKey");
-		}
 
 		// Update models to set useForCommitGeneration based on selected commitModel
 		if (commitModel) {
@@ -336,7 +314,7 @@ export class ConfigViewPanel {
 		}
 
 		vscode.window.showInformationMessage(
-			"OAI Compatible base URL, Delay, Retry and API Key have been saved to global settings."
+			"OAI Compatible Delay, Retry configuration have been saved to global settings."
 		);
 		// Send refresh signal to frontend
 		await this.sendInit();
@@ -559,8 +537,6 @@ export class ConfigViewPanel {
 	private async exportConfig() {
 		try {
 			const config = vscode.workspace.getConfiguration();
-			const baseUrl = config.get<string>("oaicopilot.baseUrl", "https://api.openai.com/v1");
-			const apiKey = (await this.secrets.get("oaicopilot.apiKey")) ?? "";
 			const delay = config.get<number>("oaicopilot.delay", 0);
 			const retry = config.get<{
 				enabled?: boolean;
@@ -592,8 +568,6 @@ export class ConfigViewPanel {
 			const exportData: ExportConfig = {
 				version: VersionManager.getVersion(),
 				exportDate: new Date().toISOString(),
-				baseUrl,
-				apiKey,
 				delay,
 				retry,
 				commitLanguage,
@@ -650,17 +624,10 @@ export class ConfigViewPanel {
 
 			const config = vscode.workspace.getConfiguration();
 
-			await config.update("oaicopilot.baseUrl", importData.baseUrl, vscode.ConfigurationTarget.Global);
 			await config.update("oaicopilot.delay", importData.delay, vscode.ConfigurationTarget.Global);
 			await config.update("oaicopilot.retry", importData.retry, vscode.ConfigurationTarget.Global);
 			await config.update("oaicopilot.readFileLines", importData.readFileLines, vscode.ConfigurationTarget.Global);
 			await config.update("oaicopilot.commitLanguage", importData.commitLanguage, vscode.ConfigurationTarget.Global);
-
-			if (importData.apiKey) {
-				await this.secrets.store("oaicopilot.apiKey", importData.apiKey);
-			} else {
-				await this.secrets.delete("oaicopilot.apiKey");
-			}
 
 			await config.update("oaicopilot.models", importData.models, vscode.ConfigurationTarget.Global);
 

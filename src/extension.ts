@@ -9,32 +9,8 @@ import { abortCommitGeneration, generateCommitMsg } from "./gitCommit/commitMess
 export function activate(context: vscode.ExtensionContext) {
 	const tokenCountStatusBarItem: vscode.StatusBarItem = initStatusBar(context);
 	const provider = new HuggingFaceChatModelProvider(context.secrets, tokenCountStatusBarItem);
-	// Register the Hugging Face provider under the vendor id used in package.json
+	// Register the OAI Compatible provider under the vendor id used in package.json
 	vscode.lm.registerLanguageModelChatProvider("oaicopilot", provider);
-
-	// Management command to configure API key
-	context.subscriptions.push(
-		vscode.commands.registerCommand("oaicopilot.setApikey", async () => {
-			const existing = await context.secrets.get("oaicopilot.apiKey");
-			const apiKey = await vscode.window.showInputBox({
-				title: "OAI Compatible Provider API Key",
-				prompt: existing ? "Update your OAI Compatible API key" : "Enter your OAI Compatible API key",
-				ignoreFocusOut: true,
-				password: true,
-				value: existing ?? "",
-			});
-			if (apiKey === undefined) {
-				return; // user canceled
-			}
-			if (!apiKey.trim()) {
-				await context.secrets.delete("oaicopilot.apiKey");
-				vscode.window.showInformationMessage("OAI Compatible API key cleared.");
-				return;
-			}
-			await context.secrets.store("oaicopilot.apiKey", apiKey.trim());
-			vscode.window.showInformationMessage("OAI Compatible API key saved.");
-		})
-	);
 
 	// Management command to configure provider-specific API keys
 	context.subscriptions.push(
