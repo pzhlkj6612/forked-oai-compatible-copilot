@@ -55,7 +55,15 @@
 			{
 				"vendor": "oaicopilot",
 				"displayName": "OAI Compatible",
-				"managementCommand": "oaicopilot.manage"
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "API key for the OAI Compatible provider",
+							"secret": true
+						}
+					}
+				}
 			}
 		],
 		"commands": [
@@ -73,11 +81,6 @@
 				"command": "oaicopilot.openConfig",
 				"category": "OAICopilot",
 				"title": "Open Configuration UI"
-			},
-			{
-				"command": "oaicopilot.manage",
-				"category": "OAICopilot",
-				"title": "Manage OAI Compatible"
 			},
 			{
 				"command": "oaicopilot.generateGitCommitMessage",
