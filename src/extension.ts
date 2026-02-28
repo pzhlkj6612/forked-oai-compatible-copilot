@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { HuggingFaceChatModelProvider } from "./provider";
+import type { HFModelItem } from "./types";
 import { initStatusBar } from "./statusBar";
 import { ConfigViewPanel } from "./views/configView";
 import { normalizeUserModels } from "./utils";
@@ -16,7 +17,7 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.commands.registerCommand("oaicopilot.setProviderApikey", async () => {
 			// Get provider list from configuration
 			const config = vscode.workspace.getConfiguration();
-			const userModels = normalizeUserModels(config.get<unknown>("oaicopilot.models", []));
+			const userModels = normalizeUserModels(config.get<HFModelItem[]>("oaicopilot.models", []));
 
 			// Extract unique providers (case-insensitive)
 			const providers = Array.from(
