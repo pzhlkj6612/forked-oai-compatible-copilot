@@ -99,6 +99,22 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
+	// Management command shown via gear icon in Language Models page
+	context.subscriptions.push(
+		vscode.commands.registerCommand("oaicopilot.manage", async () => {
+			const selected = await vscode.window.showQuickPick(
+				[
+					{ label: "Configure Global API Key", command: "oaicopilot.setApikey" },
+					{ label: "Open Configuration UI", command: "oaicopilot.openConfig" },
+				],
+				{ title: "OAI Compatible", placeHolder: "Select an action" }
+			);
+			if (selected) {
+				await vscode.commands.executeCommand(selected.command);
+			}
+		})
+	);
+
 	// Register the generateGitCommitMessage command handler
 	context.subscriptions.push(
 		vscode.commands.registerCommand("oaicopilot.generateGitCommitMessage", async (scm) => {

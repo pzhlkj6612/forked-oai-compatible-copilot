@@ -55,7 +55,7 @@
 			{
 				"vendor": "oaicopilot",
 				"displayName": "OAI Compatible",
-				"managementCommand": "oaicopilot.openConfig"
+				"managementCommand": "oaicopilot.manage"
 			}
 		],
 		"commands": [
@@ -73,6 +73,11 @@
 				"command": "oaicopilot.openConfig",
 				"category": "OAICopilot",
 				"title": "Open Configuration UI"
+			},
+			{
+				"command": "oaicopilot.manage",
+				"category": "OAICopilot",
+				"title": "Manage OAI Compatible"
 			},
 			{
 				"command": "oaicopilot.generateGitCommitMessage",
