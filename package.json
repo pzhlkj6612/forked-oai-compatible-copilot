@@ -55,15 +55,10 @@
 			{
 				"vendor": "oaicopilot",
 				"displayName": "OAI Compatible",
-				"managementCommand": "oaicopilot.setApikey"
+				"managementCommand": "oaicopilot.openConfig"
 			}
 		],
 		"commands": [
-			{
-				"command": "oaicopilot.setApikey",
-				"category": "OAICopilot",
-				"title": "Set OAI Compatible Apikey"
-			},
 			{
 				"command": "oaicopilot.setProviderApikey",
 				"category": "OAICopilot",
@@ -114,11 +109,6 @@
 		"configuration": {
 			"title": "OAI Compatible Copilot",
 			"properties": {
-				"oaicopilot.baseUrl": {
-					"type": "string",
-					"default": "https://router.huggingface.co/v1",
-					"description": "The base URL for the Openai Compatible Inference API. Default value is Hugging Face."
-				},
 				"oaicopilot.models": {
 					"type": "array",
 					"default": [],
@@ -155,7 +145,7 @@
 							},
 							"baseUrl": {
 								"type": "string",
-								"description": "Base URL for the model provider. If not provided, the global oaicopilot.baseUrl will be used."
+								"description": "Base URL for the model provider."
 							},
 							"context_length": {
 								"type": "number",
@@ -342,7 +332,7 @@
 								"type": "number",
 								"default": 0,
 								"minimum": 0,
-								"description": "Model-specific delay in milliseconds between consecutive requests. If not specified, falls back to global oaicopilot.delay configuration."
+								"description": "Model-specific delay in milliseconds between consecutive requests. If not specified, falls back to oaicopilot.delay configuration."
 							}
 						},
 						"required": [

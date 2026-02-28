@@ -10,7 +10,7 @@ export interface HFProvider {
 }
 
 /**
- * A model entry returned by the Hugging Face router models endpoint.
+ * A model entry used by the extension.
  */
 export interface HFArchitecture {
 	input_modalities?: string[];
@@ -104,15 +104,6 @@ export interface ReasoningConfig {
 	exclude?: boolean;
 	max_tokens?: number;
 	enabled?: boolean;
-}
-
-/**
- * Supplemental model info from the Hugging Face hub API.
- */
-// Deprecated: extra model info was previously fetched from the hub API
-export interface HFExtraModelInfo {
-	id: string;
-	pipeline_tag?: string;
 }
 
 /**

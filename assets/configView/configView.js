@@ -1,7 +1,5 @@
 const vscode = acquireVsCodeApi();
 const state = {
-	baseUrl: "",
-	apiKey: "",
 	delay: 0,
 	retry: { enabled: true, max_attempts: 3, interval_ms: 1000, status_codes: [429, 500, 502, 503, 504] },
 	commitModel: "",
@@ -14,8 +12,6 @@ const state = {
 const pendingConfirmations = new Map();
 
 // Global Configuration elements
-const baseUrlInput = document.getElementById("baseUrl");
-const apiKeyInput = document.getElementById("apiKey");
 const delayInput = document.getElementById("delay");
 const readFileLinesInput = document.getElementById("readFileLines");
 const retryEnabledInput = document.getElementById("retryEnabled");
@@ -91,8 +87,6 @@ document.getElementById("saveBase").addEventListener("click", () => {
 
 	vscode.postMessage({
 		type: "saveGlobalConfig",
-		baseUrl: baseUrlInput.value,
-		apiKey: apiKeyInput.value,
 		delay: parseInt(delayInput.value) || 0,
 		readFileLines: parseInt(readFileLinesInput.value) || 0,
 		retry: retry,
@@ -211,8 +205,8 @@ modelProviderInput.addEventListener("change", () => {
 		// Request to fetch remote models for the selected provider
 		vscode.postMessage({
 			type: "fetchModels",
-			baseUrl: state.providerInfo[selectedProvider].baseUrl || state.baseUrl,
-			apiKey: state.providerKeys[selectedProvider] || state.apiKey,
+			baseUrl: state.providerInfo[selectedProvider].baseUrl || "",
+			apiKey: state.providerKeys[selectedProvider] || "",
 			apiMode: state.providerInfo[selectedProvider].apiMode || modelApiModeInput.value || "openai",
 			headers,
 		});
@@ -272,10 +266,8 @@ window.addEventListener("message", (event) => {
 
 	switch (message.type) {
 		case "init":
-			const { baseUrl, apiKey, delay, readFileLines, retry, commitModel, models, providerKeys, commitLanguage } =
+			const { delay, readFileLines, retry, commitModel, models, providerKeys, commitLanguage } =
 				message.payload;
-			state.baseUrl = baseUrl;
-			state.apiKey = apiKey;
 			state.delay = delay || 0;
 			state.readFileLines = readFileLines || 0;
 			state.retry = retry || {
@@ -289,8 +281,6 @@ window.addEventListener("message", (event) => {
 			state.providerKeys = providerKeys || {};
 
 			// Update base configuration
-			baseUrlInput.value = baseUrl || "";
-			apiKeyInput.value = apiKey || "";
 			delayInput.value = state.delay;
 			readFileLinesInput.value = message.payload.readFileLines || 0;
 			retryEnabledInput.checked = state.retry.enabled !== false;
@@ -389,9 +379,9 @@ function renderProviders() {
 
 			// Store provider info for auto-fill
 			state.providerInfo[provider] = {
-				baseUrl: firstModel.baseUrl || state.baseUrl,
+				baseUrl: firstModel.baseUrl || "",
 				apiMode: firstModel.apiMode || "openai",
-				apiKey: state.providerKeys[provider] || state.apiKey,
+				apiKey: state.providerKeys[provider] || "",
 				headers: firstModel.headers,
 			};
 
@@ -878,8 +868,8 @@ function populateModelForm(model) {
 	}
 
 	const providerInfo = state.providerInfo[currentProvider];
-	const fetchBaseUrl = model.baseUrl || state.baseUrl;
-	const fetchApiKey = state.providerKeys[currentProvider] || state.apiKey;
+	const fetchBaseUrl = model.baseUrl || "";
+	const fetchApiKey = state.providerKeys[currentProvider] || "";
 	const fetchApiMode = providerInfo?.apiMode || model.apiMode || modelApiModeInput.value || "openai";
 
 	// Request to fetch remote models for the selected provider
