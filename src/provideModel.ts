@@ -43,6 +43,7 @@ export async function prepareLanguageModelChatInformation(
 				return {
 					id: modelId,
 					name: modelName,
+					detail: m.owned_by || "OAI Compatible",
 					tooltip: m.configId
 						? `OAI Compatible ${m.id} (config: ${m.configId}) via ${m.owned_by}`
 						: `OAI Compatible via ${m.owned_by}`,
@@ -91,6 +92,7 @@ export async function prepareLanguageModelChatInformation(
 				entries.push({
 					id: `${m.id}:${p.provider}`,
 					name: `${m.id} via ${p.provider}`,
+					detail: p.provider || "OAI Compatible",
 					tooltip: `OAI Compatible via ${p.provider}`,
 					family: m.family ?? "oai-compatible",
 					version: "1.0.0",
@@ -112,6 +114,7 @@ export async function prepareLanguageModelChatInformation(
 				entries.push({
 					id: `${m.id}`,
 					name: `${m.id} via OAI Compatible`,
+					detail: "OAI Compatible",
 					tooltip: "OAI Compatible",
 					family: m.family ?? "oai-compatible",
 					version: "1.0.0",
