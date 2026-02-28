@@ -9,6 +9,7 @@ import { fetchOllamaModels } from "./ollama/ollamaApi";
 
 const DEFAULT_CONTEXT_LENGTH = 128000;
 const DEFAULT_MAX_TOKENS = 4096;
+const DEFAULT_PROVIDER_LABEL = "OAI Compatible";
 
 /**
  * Get the list of available language models contributed by this provider
@@ -39,11 +40,12 @@ export async function prepareLanguageModelChatInformation(
 				const modelId = m.configId ? `${m.id}::${m.configId}` : m.id;
 				const modelName =
 					m.displayName || (m.configId ? `${m.id}::${m.configId} via ${m.owned_by}` : `${m.id} via ${m.owned_by}`);
+				const providerLabel = m.owned_by || DEFAULT_PROVIDER_LABEL;
 
 				return {
 					id: modelId,
 					name: modelName,
-					detail: m.owned_by || "OAI Compatible",
+					detail: providerLabel,
 					tooltip: m.configId
 						? `OAI Compatible ${m.id} (config: ${m.configId}) via ${m.owned_by}`
 						: `OAI Compatible via ${m.owned_by}`,
@@ -51,7 +53,7 @@ export async function prepareLanguageModelChatInformation(
 					version: "1.0.0",
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
-					category: { label: m.owned_by || "OAI Compatible", order: 0 },
+					category: { label: providerLabel, order: 0 },
 					capabilities: {
 						toolCalling: true,
 						imageInput: m?.vision ?? false,
@@ -89,16 +91,17 @@ export async function prepareLanguageModelChatInformation(
 				const contextLen = p?.context_length ?? DEFAULT_CONTEXT_LENGTH;
 				const maxOutput = DEFAULT_MAX_TOKENS;
 				const maxInput = Math.max(1, contextLen - maxOutput);
+				const providerLabel = p.provider || DEFAULT_PROVIDER_LABEL;
 				entries.push({
 					id: `${m.id}:${p.provider}`,
 					name: `${m.id} via ${p.provider}`,
-					detail: p.provider || "OAI Compatible",
+					detail: providerLabel,
 					tooltip: `OAI Compatible via ${p.provider}`,
 					family: m.family ?? "oai-compatible",
 					version: "1.0.0",
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
-					category: { label: p.provider || "OAI Compatible", order: 0 },
+					category: { label: providerLabel, order: 0 },
 					capabilities: {
 						toolCalling: true,
 						imageInput: vision,
@@ -113,14 +116,14 @@ export async function prepareLanguageModelChatInformation(
 				const maxInput = Math.max(1, contextLen - maxOutput);
 				entries.push({
 					id: `${m.id}`,
-					name: `${m.id} via OAI Compatible`,
-					detail: "OAI Compatible",
-					tooltip: "OAI Compatible",
+					name: `${m.id} via ${DEFAULT_PROVIDER_LABEL}`,
+					detail: DEFAULT_PROVIDER_LABEL,
+					tooltip: DEFAULT_PROVIDER_LABEL,
 					family: m.family ?? "oai-compatible",
 					version: "1.0.0",
 					maxInputTokens: maxInput,
 					maxOutputTokens: maxOutput,
-					category: { label: "OAI Compatible", order: 0 },
+					category: { label: DEFAULT_PROVIDER_LABEL, order: 0 },
 					capabilities: {
 						toolCalling: true,
 						imageInput: true,
