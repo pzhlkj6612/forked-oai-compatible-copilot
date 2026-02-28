@@ -58,13 +58,9 @@ export async function prepareLanguageModelChatInformation(
 			});
 	} else {
 		// Fallback: Fetch models from API
-		const apiKey = await ensureApiKey(options.silent, secrets);
+		const apiKey = await getApiKey(secrets);
 		if (!apiKey) {
-			if (options.silent) {
-				return [];
-			} else {
-				throw new Error("OAI Compatible API key not found");
-			}
+			return [];
 		}
 
 		const config = vscode.workspace.getConfiguration();
@@ -185,25 +181,9 @@ export async function fetchModels(
 }
 
 /**
- * Ensure an API key exists in SecretStorage, optionally prompting the user when not silent.
- * @param silent If true, do not prompt the user.
+ * Retrieve the global API key from SecretStorage (if stored).
  * @param secrets vscode.SecretStorage
  */
-async function ensureApiKey(silent: boolean, secrets: vscode.SecretStorage): Promise<string | undefined> {
-	// Fall back to generic API key
-	let apiKey = await secrets.get("oaicopilot.apiKey");
-
-	if (!apiKey && !silent) {
-		const entered = await vscode.window.showInputBox({
-			title: "OAI Compatible API Key",
-			prompt: "Enter your OAI Compatible API key",
-			ignoreFocusOut: true,
-			password: true,
-		});
-		if (entered && entered.trim()) {
-			apiKey = entered.trim();
-			await secrets.store("oaicopilot.apiKey", apiKey);
-		}
-	}
-	return apiKey;
+async function getApiKey(secrets: vscode.SecretStorage): Promise<string | undefined> {
+	return secrets.get("oaicopilot.apiKey");
 }
