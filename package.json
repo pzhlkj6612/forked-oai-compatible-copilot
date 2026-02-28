@@ -55,7 +55,15 @@
 			{
 				"vendor": "oaicopilot",
 				"displayName": "OAI Compatible",
-				"managementCommand": "oaicopilot.setApikey"
+				"configuration": {
+					"properties": {
+						"apiKey": {
+							"type": "string",
+							"description": "API key for the OAI Compatible provider",
+							"secret": true
+						}
+					}
+				}
 			}
 		],
 		"commands": [
