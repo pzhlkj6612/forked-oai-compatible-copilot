@@ -10,6 +10,10 @@ const state = {
 	providerInfo: {},
 };
 
+// Sort state for tables
+const providerSort = { key: "provider", direction: "asc" };
+const modelSort = { key: "id", direction: "asc" };
+
 // Store the action to be performed after confirmation
 const pendingConfirmations = new Map();
 
@@ -74,6 +78,33 @@ const modelErrorElement = document.getElementById("modelError");
 // Dropdown elements
 const dropdownContent = modelIdDropdown.querySelector(".dropdown-content");
 const dropdownHeader = modelIdDropdown.querySelector(".dropdown-header");
+
+// Sortable header click handlers
+function setupSortableHeaders(tableId, sortState, renderFn) {
+	const headers = document.querySelectorAll(`#${tableId} th.sortable`);
+	headers.forEach((th) => {
+		th.addEventListener("click", () => {
+			const key = th.getAttribute("data-sort-key");
+			if (sortState.key === key) {
+				sortState.direction = sortState.direction === "asc" ? "desc" : "asc";
+			} else {
+				sortState.key = key;
+				sortState.direction = "asc";
+			}
+			// Update header UI
+			headers.forEach((h) => {
+				h.classList.remove("active");
+				h.removeAttribute("data-sort-dir");
+			});
+			th.classList.add("active");
+			th.setAttribute("data-sort-dir", sortState.direction);
+			renderFn();
+		});
+	});
+}
+
+setupSortableHeaders("providerTable", providerSort, renderProviders);
+setupSortableHeaders("modelTable", modelSort, renderModels);
 
 // Global Configuration save button event listener
 document.getElementById("saveBase").addEventListener("click", () => {
@@ -336,9 +367,29 @@ window.addEventListener("message", (event) => {
 
 function renderProviders() {
 	// Get all unique providers
-	const providers = Array.from(new Set(state.models.map((m) => m.owned_by).filter(Boolean))).sort((a, b) =>
-		a.localeCompare(b)
-	);
+	const providerIds = Array.from(new Set(state.models.map((m) => m.owned_by).filter(Boolean)));
+
+	// Build provider objects with sortable fields
+	const providerObjects = providerIds.map((provider) => {
+		const providerModels = state.models.filter((m) => m.owned_by === provider);
+		const firstModel = providerModels[0];
+		return {
+			provider,
+			baseUrl: firstModel.baseUrl || "",
+			apiMode: firstModel.apiMode || "openai",
+			firstModel,
+		};
+	});
+
+	// Sort providers based on current sort state
+	providerObjects.sort((a, b) => {
+		const valA = (a[providerSort.key] || "").toString().toLowerCase();
+		const valB = (b[providerSort.key] || "").toString().toLowerCase();
+		const cmp = valA.localeCompare(valB);
+		return providerSort.direction === "asc" ? cmp : -cmp;
+	});
+
+	const providers = providerObjects.map((p) => p.provider);
 
 	if (!providers.length) {
 		providerTableBody.innerHTML = '<tr><td colspan="6" class="no-data">No providers</td></tr>';
@@ -453,7 +504,28 @@ function renderProviders() {
 }
 
 function renderModels() {
-	const models = state.models.filter((m) => !m.id.startsWith("__provider__")).sort((a, b) => a.id.localeCompare(b.id));
+	const models = state.models
+		.filter((m) => !m.id.startsWith("__provider__"))
+		.sort((a, b) => {
+			const key = modelSort.key;
+			let valA = key === "max_tokens" ? a.max_tokens || a.max_completion_tokens : a[key];
+			let valB = key === "max_tokens" ? b.max_tokens || b.max_completion_tokens : b[key];
+
+			// Handle nullish values - push them to the end
+			if (valA == null && valB == null) return 0;
+			if (valA == null) return 1;
+			if (valB == null) return -1;
+
+			let cmp;
+			if (typeof valA === "number" && typeof valB === "number") {
+				cmp = valA - valB;
+			} else if (typeof valA === "boolean" && typeof valB === "boolean") {
+				cmp = valA === valB ? 0 : valA ? -1 : 1;
+			} else {
+				cmp = String(valA).localeCompare(String(valB));
+			}
+			return modelSort.direction === "asc" ? cmp : -cmp;
+		});
 	if (!models.length) {
 		modelTableBody.innerHTML = '<tr><td colspan="11" class="no-data">No models</td></tr>';
 		return;
