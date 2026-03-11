@@ -113,7 +113,7 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
-	// Watch for GitHub Copilot Chat extension changes and prompt to reload
+	// Watch for GitHub Copilot Chat extension changes and prompt to restart
 	const copilotChatExtensionId = "github.copilot-chat";
 	let copilotChatVersion = vscode.extensions.getExtension(copilotChatExtensionId)?.packageJSON?.version as
 		| string
@@ -127,12 +127,12 @@ export function activate(context: vscode.ExtensionContext) {
 				copilotChatVersion = newVersion;
 				vscode.window
 					.showWarningMessage(
-						"The GitHub Copilot Chat extension has been changed. Please reload the window to ensure OAI Compatible Provider works correctly.",
-						"Reload Window"
+						"The GitHub Copilot Chat extension has been changed. Please restart the extension host to ensure OAI Compatible Provider works correctly.",
+						"Restart Extension Host"
 					)
 					.then((selection) => {
-						if (selection === "Reload Window") {
-							vscode.commands.executeCommand("workbench.action.reloadWindow");
+						if (selection === "Restart Extension Host") {
+							vscode.commands.executeCommand("workbench.action.restartExtensionHost");
 						}
 					});
 			}
