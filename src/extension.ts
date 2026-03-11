@@ -112,6 +112,32 @@ export function activate(context: vscode.ExtensionContext) {
 			abortCommitGeneration();
 		})
 	);
+
+	// Watch for GitHub Copilot Chat extension changes and prompt to reload
+	const copilotChatExtensionId = "github.copilot-chat";
+	let copilotChatVersion = vscode.extensions.getExtension(copilotChatExtensionId)?.packageJSON?.version as
+		| string
+		| undefined;
+	context.subscriptions.push(
+		vscode.extensions.onDidChange(() => {
+			const newVersion = vscode.extensions.getExtension(copilotChatExtensionId)?.packageJSON?.version as
+				| string
+				| undefined;
+			if (newVersion !== copilotChatVersion) {
+				copilotChatVersion = newVersion;
+				vscode.window
+					.showWarningMessage(
+						"The GitHub Copilot Chat extension has been changed. Please reload the window to ensure OAI Compatible Provider works correctly.",
+						"Reload Window"
+					)
+					.then((selection) => {
+						if (selection === "Reload Window") {
+							vscode.commands.executeCommand("workbench.action.reloadWindow");
+						}
+					});
+			}
+		})
+	);
 }
 
 export function deactivate() {}
