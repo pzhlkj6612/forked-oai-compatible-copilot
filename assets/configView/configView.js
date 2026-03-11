@@ -81,7 +81,8 @@ const dropdownHeader = modelIdDropdown.querySelector(".dropdown-header");
 
 // Sortable header click handlers
 function setupSortableHeaders(tableId, sortState, renderFn) {
-	document.querySelectorAll(`#${tableId} th.sortable`).forEach((th) => {
+	const headers = document.querySelectorAll(`#${tableId} th.sortable`);
+	headers.forEach((th) => {
 		th.addEventListener("click", () => {
 			const key = th.getAttribute("data-sort-key");
 			if (sortState.key === key) {
@@ -91,7 +92,7 @@ function setupSortableHeaders(tableId, sortState, renderFn) {
 				sortState.direction = "asc";
 			}
 			// Update header UI
-			document.querySelectorAll(`#${tableId} th.sortable`).forEach((h) => {
+			headers.forEach((h) => {
 				h.classList.remove("active");
 				h.removeAttribute("data-sort-dir");
 			});
