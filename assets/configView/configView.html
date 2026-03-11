@@ -116,10 +116,10 @@
 				<table id="providerTable">
 					<thead>
 						<tr>
-							<th>Provider ID</th>
-							<th>Base URL</th>
+							<th class="sortable active" data-sort-key="provider" data-sort-dir="asc">Provider ID</th>
+							<th class="sortable" data-sort-key="baseUrl">Base URL</th>
 							<th>API Key</th>
-							<th>API Mode</th>
+							<th class="sortable" data-sort-key="apiMode">API Mode</th>
 							<th>Custom Headers (JSON)</th>
 							<th>Actions</th>
 						</tr>
@@ -143,16 +143,16 @@
 				<table id="modelTable">
 					<thead>
 						<tr>
-							<th>Model ID</th>
-							<th>Provider ID</th>
-							<th>Display Name</th>
-							<th>Config ID</th>
-							<th>Context Length</th>
-							<th>Max Tokens</th>
-							<th>Supports Vision</th>
-							<th>Temperature</th>
-							<th>TopP</th>
-							<th>Delay (ms)</th>
+							<th class="sortable active" data-sort-key="id" data-sort-dir="asc">Model ID</th>
+							<th class="sortable" data-sort-key="owned_by">Provider ID</th>
+							<th class="sortable" data-sort-key="displayName">Display Name</th>
+							<th class="sortable" data-sort-key="configId">Config ID</th>
+							<th class="sortable" data-sort-key="context_length">Context Length</th>
+							<th class="sortable" data-sort-key="max_tokens">Max Tokens</th>
+							<th class="sortable" data-sort-key="vision">Supports Vision</th>
+							<th class="sortable" data-sort-key="temperature">Temperature</th>
+							<th class="sortable" data-sort-key="top_p">TopP</th>
+							<th class="sortable" data-sort-key="delay">Delay (ms)</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
